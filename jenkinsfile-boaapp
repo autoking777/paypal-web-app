@@ -7,14 +7,14 @@ node{
     sh "${mavenHome}/bin/mvn clean package"
   }
   stage('3CodeQuality'){
-    sh "${mavenHome}/bin/mvn sonar:sonar"
+    //sh "${mavenHome}/bin/mvn sonar:sonar"
   }
 
     stage('4UploadArtifacts'){
-    sh "${mavenHome}/bin/mvn deploy"
+    //sh "${mavenHome}/bin/mvn deploy"
  }
 stage('5.Deploy2dev'){
-deploy adapters: [tomcat9(credentialsId: 'tomcat-credentials', path: '', url: 'http://54.197.15.238:8080/')], contextPath: null, war: 'target/web-app.war'  
+deploy adapters: [tomcat9(credentialsId: 'tomcat-credentials', path: '', url: 'http://3.85.171.205:7000/')], contextPath: null, war: 'target/web-app.war'  
   }
 
   stage('6.Deploy2uat'){
