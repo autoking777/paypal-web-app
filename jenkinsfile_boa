@@ -16,8 +16,7 @@ node{
 stage('5.Deploy2dev'){
 deploy adapters: [tomcat9(credentialsId: 'tomcat-credentials', path: '', url: 'http://3.85.171.205:7000/')], contextPath: null, war: 'target/web-app.war'  
   }
-
-  stage('6.Deploy2uat'){
+stage('6.Deploy2uat'){
        sshagent(['tomcat-agent-cred']) {
         sh "scp -o StrictHostKeyChecking=no target/*war ec2-user@172.31.92.235:/opt/tomcat9/webapps/uatapp.war"
   }
