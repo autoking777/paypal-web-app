@@ -96,13 +96,13 @@
 	    <repository>
 	      <id>nexus</id>
 	      <name>Landmark Technologies Releases Nexus Repository</name>
-	      <url>http://3.89.209.6:8081/repository/boa-web-app-release/</url>
+	      <url>http://3.86.199.45:8081/repository/zella-app-release/</url>
 	    </repository>
 	    
 	    <snapshotRepository>
 	      <id>nexus</id>
 	      <name>Landmark Technologies Snapshot Nexus Repository </name>
-	      <url>http://3.89.209.6:8081/repository/boa-web-app-snapshot/</url>
+	      <url>http://3.86.199.45:8081/repository/zella-app-snapshot/</url>
 	    </snapshotRepository>
 	    
 	</distributionManagement>
