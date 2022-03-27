@@ -96,13 +96,13 @@
 	    <repository>
 	      <id>nexus</id>
 	      <name>Landmark Technologies Releases Nexus Repository</name>
-	      <url>http://3.86.199.45:8081/repository/zella-app-release/</url>
+	      <url>http://54.210.10.222:8081/repository/zella-apps-release/</url>
 	    </repository>
 	    
 	    <snapshotRepository>
 	      <id>nexus</id>
 	      <name>Landmark Technologies Snapshot Nexus Repository </name>
-	      <url>http://3.86.199.45:8081/repository/zella-app-snapshot/</url>
+	      <url>http://54.210.10.222:8081/repository/zella-apps-snapshot/</url>
 	    </snapshotRepository>
 	    
 	</distributionManagement>
