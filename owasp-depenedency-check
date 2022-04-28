@@ -1,68 +1,33 @@
-pipeline {
-  agent any 
-  tools {
-    maven 'Maven'
-  }
-  stages {
-    stage ('Initialize') {
-      steps {
-        sh '''
-                    echo "PATH = ${PATH}"
-                    echo "M2_HOME = ${M2_HOME}"
-           ''' 
-   }
-  }
-  
-  stage ('Check-Git-Secrets') {
-      steps {
-        sh 'rm trufflehog || true'
-        sh 'docker run gesellix/trufflehog --json https://github.com/autoking777/webapp.git > trufflehog'
-        sh 'cat trufflehog'
-      }
-    }
-  
-  stage ('Source Composition Analysis') {
-      steps {
-         sh 'rm owasp* || true'
-         sh 'wget "https://raw.githubusercontent.com/autoking777/webapp/master/owasp-dependency-check.sh" '
-         sh 'chmod 777 owasp-dependency-check.sh'
-         //sh 'bash owasp-dependency-check.sh'
-         //sh 'cat /var/lib/jenkins/OWASP-Dependency-Check/reports/dependency-check-report.xml'
-        
-        }
-    }
-        
-   stage('2.Build'){
-       steps{
-        sh "echo validation, compilation, testing and package"
-        sh "echo testing successful and ready to package"
-        sh "mvn clean package"
-      }
-    }
-    
-    stage ('SAST') {
-       steps {
-          withSonarQubeEnv('sonar') {
-          sh 'mvn sonar:sonar'
-          sh 'cat target/sonar/report-task.txt'
-        }
-      }
-     }
-    
-  stage ('Deploy-To-Tomcat') {
-          steps {
-            sshagent(['tomcat']) {
-            sh 'scp -o StrictHostKeyChecking=no target/*.war ubuntu@172.31.87.20:/prod/tomcat/webapps/webapp.war'
-           }      
-          }
-         }
-         
-   stage ('DAST') {
-      steps {
-        sshagent(['zap']) {
-         sh 'ssh -o  StrictHostKeyChecking=no ubuntu@172.31.28.38 "docker run -t owasp/zap2docker-stable zap-baseline.py -t http://172.31.87.20:7000/webapp/" || true'
-        }
-      }
-    }
-   }
-  }
+#!/bin/sh
+
+DC_VERSION="latest"
+DC_DIRECTORY=$HOME/OWASP-Dependency-Check
+DC_PROJECT="dependency-check scan: $(pwd)"
+DATA_DIRECTORY="$DC_DIRECTORY/data"
+CACHE_DIRECTORY="$DC_DIRECTORY/data/cache"
+
+if [ ! -d "$DATA_DIRECTORY" ]; then
+    echo "Initially creating persistent directory: $DATA_DIRECTORY"
+    mkdir -p "$DATA_DIRECTORY"
+fi
+if [ ! -d "$CACHE_DIRECTORY" ]; then
+    echo "Initially creating persistent directory: $CACHE_DIRECTORY"
+    mkdir -p "$CACHE_DIRECTORY"
+fi
+
+# Make sure we are using the latest version
+docker pull owasp/dependency-check:$DC_VERSION
+
+docker run --rm \
+    -e user=$USER \
+    -u $(id -u ${USER}):$(id -g ${USER}) \
+    --volume $(pwd):/src:z \
+    --volume "$DATA_DIRECTORY":/usr/share/dependency-check/data:z \
+    --volume $(pwd)/odc-reports:/report:z \
+    owasp/dependency-check:$DC_VERSION \
+    --scan /src \
+    --format "ALL" \
+    --project "$DC_PROJECT" \
+    --out /report
+    # Use suppression like this: (where /src == $pwd)
+    # --suppression "/src/security/dependency-check-suppression.xml"
